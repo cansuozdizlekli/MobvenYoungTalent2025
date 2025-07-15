@@ -12,6 +12,8 @@ class TodoViewModel {
     // Output
     @Published private(set) var displayText: String = "Henüz Fetch edilmedi"
     @Published private(set) var isLoading: Bool = false
+    @Published private(set) var shouldShowDetail: Todo?
+    @Published private(set) var errorMessage: String?
     
     private var todo: Todo? {
         didSet {
@@ -38,5 +40,21 @@ class TodoViewModel {
                 }
             }
         }
+    }
+    
+    func showDetail() {
+        guard let todo = todo else {
+            errorMessage = "Önce bir todo fetch etmelisiniz!"
+            return
+        }
+        shouldShowDetail = todo
+    }
+    
+    func detailShown() {
+        shouldShowDetail = nil
+    }
+    
+    func errorShown() {
+        errorMessage = nil
     }
 }

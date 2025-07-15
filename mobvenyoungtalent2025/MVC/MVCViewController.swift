@@ -9,6 +9,8 @@ import UIKit
 
 class MVCViewController: UIViewController {
     
+    private var todo: Todo?
+    
     private let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBackground
@@ -40,6 +42,16 @@ class MVCViewController: UIViewController {
         return btn
     }()
     
+    private let detailButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Detay Göster", for: .normal)
+        btn.backgroundColor = .systemGreen
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        return btn
+    }()
+    
     private let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
         indicator.color = .white
@@ -52,12 +64,12 @@ class MVCViewController: UIViewController {
         view.backgroundColor = .systemGroupedBackground
         title = "MVC Pattern"
         setupLayout()
-        fetchButton.addTarget(self, action: #selector(fetchTodo), for: .touchUpInside)
+        setupActions()
     }
 
     private func setupLayout() {
         view.addSubview(containerView)
-        [fetchButton, titleLabel].forEach {
+        [fetchButton, detailButton, titleLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             containerView.addSubview($0)
         }
@@ -71,12 +83,17 @@ class MVCViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            containerView.heightAnchor.constraint(equalToConstant: 200),
+            containerView.heightAnchor.constraint(equalToConstant: 250),
             
-            fetchButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            fetchButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 30),
-            fetchButton.widthAnchor.constraint(equalToConstant: 120),
+            fetchButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            fetchButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            fetchButton.widthAnchor.constraint(equalToConstant: 100),
             fetchButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            detailButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+            detailButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            detailButton.widthAnchor.constraint(equalToConstant: 100),
+            detailButton.heightAnchor.constraint(equalToConstant: 44),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: fetchButton.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: fetchButton.centerYAnchor),
@@ -86,6 +103,11 @@ class MVCViewController: UIViewController {
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
             titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -20)
         ])
+    }
+    
+    private func setupActions() {
+        fetchButton.addTarget(self, action: #selector(fetchTodo), for: .touchUpInside)
+        detailButton.addTarget(self, action: #selector(showDetail), for: .touchUpInside)
     }
     
     private func setLoading(_ isLoading: Bool) {
@@ -108,12 +130,27 @@ class MVCViewController: UIViewController {
                 self?.setLoading(false)
                 switch result {
                 case .success(let todo):
+                    self?.todo = todo
                     self?.titleLabel.text = "MVC → #\(todo.id):\n\(todo.title)"
                 case .failure(let err):
                     self?.titleLabel.text = "MVC Hata: \(err.localizedDescription)"
                 }
             }
         }
+    }
+    
+    @objc private func showDetail() {
+        guard let todo = todo else {
+            let alert = UIAlertController(title: "Hata", message: "Önce bir todo fetch etmelisiniz!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Tamam", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        let detailVC = DetailViewController(todo: todo, sourceArchitecture: "MVC")
+        let navigationController = UINavigationController(rootViewController: detailVC)
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: true)
     }
 }
 

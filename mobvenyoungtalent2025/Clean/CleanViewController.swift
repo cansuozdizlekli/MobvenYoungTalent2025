@@ -7,23 +7,15 @@
 
 import UIKit
 
-protocol TodoDisplayLogic: AnyObject {
+protocol CleanTodoDisplayLogic: AnyObject {
     func display(fetch viewModel: CleanTodo.Fetch.ViewModel)
     func display(error message: String)
     func display(loading isLoading: Bool)
 }
 
-protocol TodoRoutingLogic {
-    // Add routing methods here if needed
-}
-
-protocol TodoDataPassing {
-    var dataStore: TodoDataStore? { get }
-}
-
 final class CleanViewController: UIViewController {
-    var interactor: TodoBusinessLogic?
-    var router: (TodoRoutingLogic & TodoDataPassing)?
+    var interactor: CleanTodoBusinessLogic?
+    var router: (CleanTodoRoutingLogic & CleanTodoDataPassing)?
 
     private let containerView: UIView = {
         let view = UIView()
@@ -56,6 +48,16 @@ final class CleanViewController: UIViewController {
         return btn
     }()
     
+    private let detailButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Detay Göster", for: .normal)
+        btn.backgroundColor = .systemGreen
+        btn.setTitleColor(.white, for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        return btn
+    }()
+    
     private let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
         indicator.color = .white
@@ -69,14 +71,14 @@ final class CleanViewController: UIViewController {
         title = "Clean Architecture"
         setupCleanArchitecture()
         setupLayout()
-        fetchButton.addTarget(self, action: #selector(fetchTapped), for: .touchUpInside)
+        setupActions()
     }
 
     private func setupCleanArchitecture() {
-        let interactor = TodoInteractor()
-        let presenter = TodoPresenter()
-        let router = TodoRouter()
-        let worker = TodoWorker()
+        let interactor = CleanTodoInteractor()
+        let presenter = CleanTodoPresenter()
+        let router = CleanTodoRouter()
+        let worker = CleanTodoWorker()
         
         self.interactor = interactor
         self.router = router
@@ -89,7 +91,7 @@ final class CleanViewController: UIViewController {
 
     private func setupLayout() {
         view.addSubview(containerView)
-        [fetchButton, titleLabel].forEach {
+        [fetchButton, detailButton, titleLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             containerView.addSubview($0)
         }
@@ -103,12 +105,17 @@ final class CleanViewController: UIViewController {
             containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            containerView.heightAnchor.constraint(equalToConstant: 200),
+            containerView.heightAnchor.constraint(equalToConstant: 250),
             
-            fetchButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            fetchButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 30),
-            fetchButton.widthAnchor.constraint(equalToConstant: 120),
+            fetchButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            fetchButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            fetchButton.widthAnchor.constraint(equalToConstant: 100),
             fetchButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            detailButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+            detailButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            detailButton.widthAnchor.constraint(equalToConstant: 100),
+            detailButton.heightAnchor.constraint(equalToConstant: 44),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: fetchButton.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: fetchButton.centerYAnchor),
@@ -119,16 +126,25 @@ final class CleanViewController: UIViewController {
             titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -20)
         ])
     }
+    
+    private func setupActions() {
+        fetchButton.addTarget(self, action: #selector(fetchTapped), for: .touchUpInside)
+        detailButton.addTarget(self, action: #selector(detailTapped), for: .touchUpInside)
+    }
 
     @objc private func fetchTapped() {
         let request = CleanTodo.Fetch.Request()
         interactor?.fetch(request: request)
     }
+    
+    @objc private func detailTapped() {
+        router?.routeToTodoDetail()
+    }
 }
 
-// MARK: - TodoDisplayLogic
+// MARK: - CleanTodoDisplayLogic
 
-extension CleanViewController: TodoDisplayLogic {
+extension CleanViewController: CleanTodoDisplayLogic {
     func display(fetch viewModel: CleanTodo.Fetch.ViewModel) {
         titleLabel.text = viewModel.displayText
     }

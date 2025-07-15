@@ -1,5 +1,5 @@
 //
-//  TodoInteractor.swift
+//  CleanTodoInteractor.swift
 //  mobvenyoungtalent2025
 //
 //  Created by Cansu Özdizlekli on 15.07.2025.
@@ -7,17 +7,17 @@
 
 import Foundation
 
-protocol TodoBusinessLogic: AnyObject {
+protocol CleanTodoBusinessLogic: AnyObject {
     func fetch(request: CleanTodo.Fetch.Request)
 }
 
-protocol TodoDataStore: AnyObject {
+protocol CleanTodoDataStore: AnyObject {
     var todo: Todo? { get set }
 }
 
-final class TodoInteractor: TodoBusinessLogic, TodoDataStore {
-    var presenter: TodoPresentationLogic?
-    var worker: TodoWorkerProtocol?
+final class CleanTodoInteractor: CleanTodoBusinessLogic, CleanTodoDataStore {
+    var presenter: CleanTodoPresentationLogic?
+    var worker: CleanTodoWorkerProtocol?
     
     // MARK: - Data Store
     var todo: Todo?
@@ -40,4 +40,4 @@ final class TodoInteractor: TodoBusinessLogic, TodoDataStore {
             }
         }
     }
-}
+} 
