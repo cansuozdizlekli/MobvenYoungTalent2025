@@ -17,6 +17,7 @@ protocol VIPERPresenterProtocol: AnyObject {
 protocol VIPERViewProtocol: AnyObject {
     func showTodo(with text: String)
     func showError(with message: String)
+    func showLoading(_ isLoading: Bool)
 }
 
 // MARK: - Presenter
@@ -30,6 +31,7 @@ class VIPERPresenter: VIPERPresenterProtocol {
     }
     
     func fetchTodoButtonTapped() {
+        view?.showLoading(true)
         interactor?.fetchTodo()
     }
 }
@@ -39,6 +41,7 @@ extension VIPERPresenter: VIPERInteractorOutputProtocol {
     func todoFetchedSuccessfully(_ todo: TodoEntity) {
         let displayText = "VIPER → #\(todo.id): \(todo.title)"
         DispatchQueue.main.async { [weak self] in
+            self?.view?.showLoading(false)
             self?.view?.showTodo(with: displayText)
         }
     }
@@ -46,6 +49,7 @@ extension VIPERPresenter: VIPERInteractorOutputProtocol {
     func todoFetchFailed(with error: Error) {
         let errorMessage = "VIPER Hata: \(error.localizedDescription)"
         DispatchQueue.main.async { [weak self] in
+            self?.view?.showLoading(false)
             self?.view?.showError(with: errorMessage)
         }
     }

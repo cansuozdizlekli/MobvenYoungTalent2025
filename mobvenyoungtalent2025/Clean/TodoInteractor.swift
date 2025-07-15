@@ -24,8 +24,11 @@ final class TodoInteractor: TodoBusinessLogic, TodoDataStore {
     
     // MARK: - Business Logic
     func fetch(request: CleanTodo.Fetch.Request) {
+        presenter?.presentLoading(true)
+        
         worker?.fetchTodo { [weak self] result in
             DispatchQueue.main.async {
+                self?.presenter?.presentLoading(false)
                 switch result {
                 case .success(let todoItem):
                     self?.todo = todoItem

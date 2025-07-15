@@ -10,6 +10,7 @@ import Foundation
 protocol TodoPresentationLogic: AnyObject {
     func present(response: CleanTodo.Fetch.Response)
     func present(error: Error)
+    func presentLoading(_ isLoading: Bool)
 }
 
 final class TodoPresenter: TodoPresentationLogic {
@@ -23,5 +24,9 @@ final class TodoPresenter: TodoPresentationLogic {
 
     func present(error: Error) {
         viewController?.display(error: error.localizedDescription)
+    }
+    
+    func presentLoading(_ isLoading: Bool) {
+        viewController?.display(loading: isLoading)
     }
 }
