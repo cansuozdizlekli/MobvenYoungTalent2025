@@ -10,8 +10,8 @@ import UIKit
 //Controller
 class MVCViewController: UIViewController {
     
-    private var todo: Todo?
-    private var mvcView: MVCView!
+    private var todo: Todo? // Model ile bağlantısı
+    private var mvcView: MVCView! // View ile bağlantısı
 
     override func loadView() {
         mvcView = MVCView()
