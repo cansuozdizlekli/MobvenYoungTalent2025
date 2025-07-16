@@ -15,7 +15,6 @@ protocol VIPERInteractorInputProtocol: AnyObject {
 // MARK: - Interactor Output Protocol
 protocol VIPERInteractorOutputProtocol: AnyObject {
     func todoFetchedSuccessfully(_ todo: TodoEntity)
-    func todoFetchFailed(with error: Error)
 }
 
 // MARK: - Interactor
@@ -33,8 +32,8 @@ class VIPERInteractor: VIPERInteractorInputProtocol {
                     userId: todo.userId
                 )
                 self?.presenter?.todoFetchedSuccessfully(entity)
-            case .failure(let error):
-                self?.presenter?.todoFetchFailed(with: error)
+            case .failure:
+                break
             }
         }
     }

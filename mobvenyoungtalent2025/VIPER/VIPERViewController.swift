@@ -53,13 +53,6 @@ class VIPERViewController: UIViewController {
         btn.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         return btn
     }()
-    
-    private let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.color = .white
-        indicator.hidesWhenStopped = true
-        return indicator
-    }()
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -92,9 +85,6 @@ class VIPERViewController: UIViewController {
             containerView.addSubview($0)
         }
         
-        fetchButton.addSubview(loadingIndicator)
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
         containerView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -112,9 +102,6 @@ class VIPERViewController: UIViewController {
             detailButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
             detailButton.widthAnchor.constraint(equalToConstant: 100),
             detailButton.heightAnchor.constraint(equalToConstant: 44),
-            
-            loadingIndicator.centerXAnchor.constraint(equalTo: fetchButton.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: fetchButton.centerYAnchor),
             
             titleLabel.topAnchor.constraint(equalTo: fetchButton.bottomAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
@@ -141,22 +128,6 @@ class VIPERViewController: UIViewController {
 extension VIPERViewController: VIPERViewProtocol {
     func showTodo(with text: String) {
         titleLabel.text = text
-    }
-    
-    func showError(with message: String) {
-        titleLabel.text = message
-    }
-    
-    func showLoading(_ isLoading: Bool) {
-        if isLoading {
-            fetchButton.setTitle("", for: .normal)
-            fetchButton.isEnabled = false
-            loadingIndicator.startAnimating()
-        } else {
-            fetchButton.setTitle("Fetch Data", for: .normal)
-            fetchButton.isEnabled = true
-            loadingIndicator.stopAnimating()
-        }
     }
     
     func navigateToDetail(with todo: TodoEntity) {
