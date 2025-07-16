@@ -24,18 +24,15 @@ final class CleanTodoInteractor: CleanTodoBusinessLogic, CleanTodoDataStore {
     
     // MARK: - Business Logic
     func fetch(request: CleanTodo.Fetch.Request) {
-        presenter?.presentLoading(true)
-        
         worker?.fetchTodo { [weak self] result in
             DispatchQueue.main.async {
-                self?.presenter?.presentLoading(false)
                 switch result {
                 case .success(let todoItem):
                     self?.todo = todoItem
                     let response = CleanTodo.Fetch.Response(todo: todoItem)
                     self?.presenter?.present(response: response)
-                case .failure(let error):
-                    self?.presenter?.present(error: error)
+                case .failure:
+                    break
                 }
             }
         }

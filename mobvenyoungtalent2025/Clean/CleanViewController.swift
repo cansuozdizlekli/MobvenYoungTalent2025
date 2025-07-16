@@ -9,8 +9,6 @@ import UIKit
 
 protocol CleanTodoDisplayLogic: AnyObject {
     func display(fetch viewModel: CleanTodo.Fetch.ViewModel)
-    func display(error message: String)
-    func display(loading isLoading: Bool)
 }
 
 final class CleanViewController: UIViewController {
@@ -57,13 +55,6 @@ final class CleanViewController: UIViewController {
         btn.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         return btn
     }()
-    
-    private let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.color = .white
-        indicator.hidesWhenStopped = true
-        return indicator
-    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -96,9 +87,6 @@ final class CleanViewController: UIViewController {
             containerView.addSubview($0)
         }
         
-        fetchButton.addSubview(loadingIndicator)
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
         containerView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -117,9 +105,6 @@ final class CleanViewController: UIViewController {
             detailButton.widthAnchor.constraint(equalToConstant: 100),
             detailButton.heightAnchor.constraint(equalToConstant: 44),
             
-            loadingIndicator.centerXAnchor.constraint(equalTo: fetchButton.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: fetchButton.centerYAnchor),
-            
             titleLabel.topAnchor.constraint(equalTo: fetchButton.bottomAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
@@ -127,16 +112,19 @@ final class CleanViewController: UIViewController {
         ])
     }
     
+    // ViewController aksiyonlar butonlara eklenir.
     private func setupActions() {
         fetchButton.addTarget(self, action: #selector(fetchTapped), for: .touchUpInside)
         detailButton.addTarget(self, action: #selector(detailTapped), for: .touchUpInside)
     }
 
+    // Çekme aksiyonu interactora gönderilir.
     @objc private func fetchTapped() {
         let request = CleanTodo.Fetch.Request()
         interactor?.fetch(request: request)
     }
     
+    // Navigation aksiyonu routera gönderilir.
     @objc private func detailTapped() {
         router?.routeToTodoDetail()
     }
@@ -147,21 +135,5 @@ final class CleanViewController: UIViewController {
 extension CleanViewController: CleanTodoDisplayLogic {
     func display(fetch viewModel: CleanTodo.Fetch.ViewModel) {
         titleLabel.text = viewModel.displayText
-    }
-
-    func display(error message: String) {
-        titleLabel.text = "Hata: \(message)"
-    }
-    
-    func display(loading isLoading: Bool) {
-        if isLoading {
-            fetchButton.setTitle("", for: .normal)
-            fetchButton.isEnabled = false
-            loadingIndicator.startAnimating()
-        } else {
-            fetchButton.setTitle("Fetch Data", for: .normal)
-            fetchButton.isEnabled = true
-            loadingIndicator.stopAnimating()
-        }
     }
 }

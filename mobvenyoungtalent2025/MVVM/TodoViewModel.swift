@@ -7,13 +7,13 @@
 
 import Foundation
 import Combine
+import UIKit
 
+//ViewModel
 class TodoViewModel {
     // Output
     @Published private(set) var displayText: String = "Henüz Fetch edilmedi"
-    @Published private(set) var isLoading: Bool = false
     @Published private(set) var shouldShowDetail: Todo?
-    @Published private(set) var errorMessage: String?
     
     private var todo: Todo? {
         didSet {
@@ -27,16 +27,13 @@ class TodoViewModel {
     }
     
     func fetch() {
-        isLoading = true
-        
         APIService.shared.fetchTodo { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
                 switch result {
                 case .success(let todo):
                     self?.todo = todo
-                case .failure(let error):
-                    self?.displayText = "MVVM Hata: \(error.localizedDescription)"
+                case .failure:
+                    break
                 }
             }
         }
@@ -44,17 +41,18 @@ class TodoViewModel {
     
     func showDetail() {
         guard let todo = todo else {
-            errorMessage = "Önce bir todo fetch etmelisiniz!"
             return
         }
         shouldShowDetail = todo
     }
     
-    func detailShown() {
-        shouldShowDetail = nil
-    }
-    
-    func errorShown() {
-        errorMessage = nil
+    // Navigation işlemi ViewModel'da
+    func presentDetail(todo: Todo, from viewController: UIViewController) {
+        let detailVC = DetailViewController(todo: todo, sourceArchitecture: "MVVM")
+        let navigationController = UINavigationController(rootViewController: detailVC)
+        navigationController.modalPresentationStyle = .fullScreen
+        viewController.present(navigationController, animated: true)
+        
+        shouldShowDetail = nil // Reset after presenting
     }
 }

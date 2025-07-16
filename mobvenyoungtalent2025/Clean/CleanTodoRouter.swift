@@ -10,7 +10,6 @@ import UIKit
 // MARK: - Router Protocol
 protocol CleanTodoRoutingLogic {
     func routeToTodoDetail()
-    func showAlert(title: String, message: String)
 }
 
 // MARK: - Data Passing Protocol
@@ -26,7 +25,6 @@ final class CleanTodoRouter: NSObject, CleanTodoRoutingLogic, CleanTodoDataPassi
     // MARK: - Routing Logic
     func routeToTodoDetail() {
         guard let todo = dataStore?.todo else {
-            showAlert(title: "Hata", message: "Önce bir todo fetch etmelisiniz!")
             return
         }
         
@@ -35,11 +33,5 @@ final class CleanTodoRouter: NSObject, CleanTodoRoutingLogic, CleanTodoDataPassi
         navigationController.modalPresentationStyle = .fullScreen
         
         viewController?.present(navigationController, animated: true)
-    }
-    
-    func showAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Tamam", style: .default))
-        viewController?.present(alert, animated: true)
     }
 } 

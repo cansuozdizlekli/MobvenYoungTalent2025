@@ -1,5 +1,5 @@
 //
-//  TodoViewControllerMVVM.swift
+//  MVVMView.swift
 //  mobvenyoungtalent2025
 //
 //  Created by Cansu Özdizlekli on 15.07.2025.
@@ -8,10 +8,8 @@
 import UIKit
 import Combine
 
-class MVVMViewController: UIViewController {
-    private let viewModel = TodoViewModel()
-    private var cancellables = Set<AnyCancellable>()
-
+//View
+class MVVMView: UIView {
     private let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBackground
@@ -23,7 +21,7 @@ class MVVMViewController: UIViewController {
         return view
     }()
 
-    private let titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let lbl = UILabel()
         lbl.text = "Henüz Fetch edilmedi"
         lbl.numberOfLines = 0
@@ -33,7 +31,7 @@ class MVVMViewController: UIViewController {
         return lbl
     }()
     
-    private let fetchButton: UIButton = {
+    let fetchButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.setTitle("Fetch Data", for: .normal)
         btn.backgroundColor = .systemBlue
@@ -43,7 +41,7 @@ class MVVMViewController: UIViewController {
         return btn
     }()
     
-    private let detailButton: UIButton = {
+    let detailButton: UIButton = {
         let btn = UIButton(type: .system)
         btn.setTitle("Detay Göster", for: .normal)
         btn.backgroundColor = .systemGreen
@@ -53,38 +51,35 @@ class MVVMViewController: UIViewController {
         return btn
     }()
     
-    private let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.color = .white
-        indicator.hidesWhenStopped = true
-        return indicator
-    }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .systemGroupedBackground
-        title = "MVVM Pattern"
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
         setupLayout()
-        bindViewModel()
-        setupActions()
     }
-
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+        setupLayout()
+    }
+    
+    private func setupView() {
+        backgroundColor = .systemGroupedBackground
+    }
+    
     private func setupLayout() {
-        view.addSubview(containerView)
+        addSubview(containerView)
         [fetchButton, detailButton, titleLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             containerView.addSubview($0)
         }
         
-        fetchButton.addSubview(loadingIndicator)
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
         containerView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            containerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             containerView.heightAnchor.constraint(equalToConstant: 250),
             
             fetchButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
@@ -97,34 +92,46 @@ class MVVMViewController: UIViewController {
             detailButton.widthAnchor.constraint(equalToConstant: 100),
             detailButton.heightAnchor.constraint(equalToConstant: 44),
             
-            loadingIndicator.centerXAnchor.constraint(equalTo: fetchButton.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: fetchButton.centerYAnchor),
-            
             titleLabel.topAnchor.constraint(equalTo: fetchButton.bottomAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
             titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -20)
         ])
     }
+}
+
+//View Controller (View katmanının parçası)
+class MVVMViewController: UIViewController {
+    private let viewModel = TodoViewModel() // ViewModel ile bağlantı
+    private var mvvmView: MVVMView! // View ile bağlantı
     
-    private func setupActions() {
-        fetchButton.addTarget(self, action: #selector(fetchTodo), for: .touchUpInside)
-        detailButton.addTarget(self, action: #selector(showDetail), for: .touchUpInside)
+    private var cancellables = Set<AnyCancellable>()
+
+    override func loadView() {
+        mvvmView = MVVMView()
+        view = mvvmView
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "MVVM Pattern"
+        setupActions()
+        bindViewModel()
+    }
+
+    // button actions
+    private func setupActions() {
+        mvvmView.fetchButton.addTarget(self, action: #selector(fetchTodo), for: .touchUpInside)
+        mvvmView.detailButton.addTarget(self, action: #selector(showDetail), for: .touchUpInside)
+    }
+
+    // ViewModel binding
     private func bindViewModel() {
         // Text binding
         viewModel.$displayText
             .receive(on: DispatchQueue.main)
             .sink { [weak self] text in
-                self?.titleLabel.text = text
-            }.store(in: &cancellables)
-        
-        // Loading binding
-        viewModel.$isLoading
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isLoading in
-                self?.updateLoadingState(isLoading)
+                self?.mvvmView.titleLabel.text = text
             }.store(in: &cancellables)
         
         // Detail navigation binding
@@ -132,43 +139,8 @@ class MVVMViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .compactMap { $0 }
             .sink { [weak self] todo in
-                self?.presentDetail(todo: todo)
-                self?.viewModel.detailShown()
+                self?.viewModel.presentDetail(todo: todo, from: self!)
             }.store(in: &cancellables)
-        
-        // Error binding
-        viewModel.$errorMessage
-            .receive(on: DispatchQueue.main)
-            .compactMap { $0 }
-            .sink { [weak self] errorMessage in
-                self?.showAlert(message: errorMessage)
-                self?.viewModel.errorShown()
-            }.store(in: &cancellables)
-    }
-    
-    private func updateLoadingState(_ isLoading: Bool) {
-        if isLoading {
-            fetchButton.setTitle("", for: .normal)
-            fetchButton.isEnabled = false
-            loadingIndicator.startAnimating()
-        } else {
-            fetchButton.setTitle("Fetch Data", for: .normal)
-            fetchButton.isEnabled = true
-            loadingIndicator.stopAnimating()
-        }
-    }
-    
-    private func presentDetail(todo: Todo) {
-        let detailVC = DetailViewController(todo: todo, sourceArchitecture: "MVVM")
-        let navigationController = UINavigationController(rootViewController: detailVC)
-        navigationController.modalPresentationStyle = .fullScreen
-        present(navigationController, animated: true)
-    }
-    
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "Hata", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Tamam", style: .default))
-        present(alert, animated: true)
     }
 
     @objc private func fetchTodo() {

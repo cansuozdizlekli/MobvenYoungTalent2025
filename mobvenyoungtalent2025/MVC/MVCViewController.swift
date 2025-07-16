@@ -32,11 +32,8 @@ class MVCViewController: UIViewController {
 
     // fetch todo servis isteği
     @objc private func fetchTodo() {
-        mvcView.setLoading(true)
-        
         APIService.shared.fetchTodo { [weak self] result in
             DispatchQueue.main.async {
-                self?.mvcView.setLoading(false)
                 switch result {
                 case .success(let todo):
                     self?.todo = todo

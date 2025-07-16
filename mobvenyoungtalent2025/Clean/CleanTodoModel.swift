@@ -13,6 +13,7 @@ enum CleanTodo {
         struct Request { }
 
         /// Interactor → Presenter
+        // Ham veri dediğimiz response
         struct Response {
             let todo: Todo
         }

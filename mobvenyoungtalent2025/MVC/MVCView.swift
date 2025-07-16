@@ -7,6 +7,7 @@
 
 import UIKit
 
+//View
 class MVCView: UIView {
     
     private let containerView: UIView = {
@@ -50,13 +51,6 @@ class MVCView: UIView {
         return btn
     }()
     
-    private let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.color = .white
-        indicator.hidesWhenStopped = true
-        return indicator
-    }()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -80,9 +74,6 @@ class MVCView: UIView {
             containerView.addSubview($0)
         }
         
-        fetchButton.addSubview(loadingIndicator)
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
         containerView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -101,25 +92,10 @@ class MVCView: UIView {
             detailButton.widthAnchor.constraint(equalToConstant: 100),
             detailButton.heightAnchor.constraint(equalToConstant: 44),
             
-            loadingIndicator.centerXAnchor.constraint(equalTo: fetchButton.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: fetchButton.centerYAnchor),
-            
             titleLabel.topAnchor.constraint(equalTo: fetchButton.bottomAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
             titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -20)
         ])
-    }
-    
-    func setLoading(_ isLoading: Bool) {
-        if isLoading {
-            fetchButton.setTitle("", for: .normal)
-            fetchButton.isEnabled = false
-            loadingIndicator.startAnimating()
-        } else {
-            fetchButton.setTitle("Fetch Data", for: .normal)
-            fetchButton.isEnabled = true
-            loadingIndicator.stopAnimating()
-        }
     }
 } 
