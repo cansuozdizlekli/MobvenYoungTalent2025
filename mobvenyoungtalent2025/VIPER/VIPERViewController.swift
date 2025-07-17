@@ -76,6 +76,7 @@ class VIPERViewController: UIViewController {
         presenter.interactor = interactor
         presenter.router = router
         interactor.presenter = presenter
+        router.viewController = self
     }
 
     private func setupLayout() {
@@ -111,15 +112,16 @@ class VIPERViewController: UIViewController {
     }
     
     private func setupActions() {
-        fetchButton.addTarget(self, action: #selector(fetchButtonTapped), for: .touchUpInside)
-        detailButton.addTarget(self, action: #selector(detailButtonTapped), for: .touchUpInside)
+        fetchButton.addTarget(self, action: #selector(fetchAction), for: .touchUpInside)
+        detailButton.addTarget(self, action: #selector(detailAction), for: .touchUpInside)
     }
 
-    @objc private func fetchButtonTapped() {
+    // interactor yerine presenter bağlantısı clean'den farklı!
+    @objc private func fetchAction() {
         presenter?.fetchTodoButtonTapped()
     }
     
-    @objc private func detailButtonTapped() {
+    @objc private func detailAction() {
         presenter?.detailButtonTapped()
     }
 }
@@ -128,21 +130,6 @@ class VIPERViewController: UIViewController {
 extension VIPERViewController: VIPERViewProtocol {
     func showTodo(with text: String) {
         titleLabel.text = text
-    }
-    
-    func navigateToDetail(with todo: TodoEntity) {
-        // VIPER Entity'den Todo'ya dönüştürme
-        let todoModel = Todo(
-            userId: todo.userId,
-            id: todo.id,
-            title: todo.title,
-            completed: todo.completed
-        )
-        
-        let detailVC = DetailViewController(todo: todoModel, sourceArchitecture: "VIPER")
-        let navigationController = UINavigationController(rootViewController: detailVC)
-        navigationController.modalPresentationStyle = .fullScreen
-        present(navigationController, animated: true)
     }
 }
 

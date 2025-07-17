@@ -13,7 +13,7 @@ import UIKit
 class TodoViewModel {
     // Output
     @Published private(set) var displayText: String = "Henüz Fetch edilmedi"
-    @Published private(set) var shouldShowDetail: Todo?
+    @Published private(set) var fetchedTodo: Todo?
     
     private var todo: Todo? {
         didSet {
@@ -26,6 +26,7 @@ class TodoViewModel {
         displayText = "MVVM → #\(todo.id): \(todo.title)"
     }
     
+    // servis bağlantısı
     func fetch() {
         APIService.shared.fetchTodo { [weak self] result in
             DispatchQueue.main.async {
@@ -43,7 +44,7 @@ class TodoViewModel {
         guard let todo = todo else {
             return
         }
-        shouldShowDetail = todo
+        fetchedTodo = todo
     }
     
     // Navigation işlemi ViewModel'da
@@ -53,6 +54,6 @@ class TodoViewModel {
         navigationController.modalPresentationStyle = .fullScreen
         viewController.present(navigationController, animated: true)
         
-        shouldShowDetail = nil // Reset after presenting
+        fetchedTodo = nil // Reset after presenting
     }
 }

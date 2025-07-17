@@ -17,7 +17,6 @@ protocol VIPERPresenterProtocol: AnyObject {
 // MARK: - View Protocol
 protocol VIPERViewProtocol: AnyObject {
     func showTodo(with text: String)
-    func navigateToDetail(with todo: TodoEntity)
 }
 
 // MARK: - Presenter
@@ -39,7 +38,7 @@ class VIPERPresenter: VIPERPresenterProtocol {
         guard let todo = currentTodo else {
             return
         }
-        view?.navigateToDetail(with: todo)
+        router?.navigateToDetail(with: todo)
     }
 }
 

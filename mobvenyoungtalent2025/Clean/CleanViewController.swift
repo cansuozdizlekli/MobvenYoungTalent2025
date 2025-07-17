@@ -114,18 +114,18 @@ final class CleanViewController: UIViewController {
     
     // ViewController aksiyonlar butonlara eklenir.
     private func setupActions() {
-        fetchButton.addTarget(self, action: #selector(fetchTapped), for: .touchUpInside)
-        detailButton.addTarget(self, action: #selector(detailTapped), for: .touchUpInside)
+        fetchButton.addTarget(self, action: #selector(fetchAction), for: .touchUpInside)
+        detailButton.addTarget(self, action: #selector(detailAction), for: .touchUpInside)
     }
 
     // Çekme aksiyonu interactora gönderilir.
-    @objc private func fetchTapped() {
+    @objc private func fetchAction() {
         let request = CleanTodo.Fetch.Request()
         interactor?.fetch(request: request)
     }
     
     // Navigation aksiyonu routera gönderilir.
-    @objc private func detailTapped() {
+    @objc private func detailAction() {
         router?.routeToTodoDetail()
     }
 }

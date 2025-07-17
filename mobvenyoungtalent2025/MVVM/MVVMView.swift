@@ -135,7 +135,7 @@ class MVVMViewController: UIViewController {
             }.store(in: &cancellables)
         
         // Detail navigation binding
-        viewModel.$shouldShowDetail
+        viewModel.$fetchedTodo
             .receive(on: DispatchQueue.main)
             .compactMap { $0 }
             .sink { [weak self] todo in

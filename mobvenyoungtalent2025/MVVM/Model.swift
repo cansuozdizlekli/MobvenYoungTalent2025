@@ -7,6 +7,8 @@
 
 import Foundation
 
+//Model
+
 struct Todo: Decodable {
     let userId: Int
     let id: Int
